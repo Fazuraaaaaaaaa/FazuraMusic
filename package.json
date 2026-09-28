@@ -1,0 +1,20 @@
+{
+  "name": "website-streaming-music",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.20.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1"
+  }
+}

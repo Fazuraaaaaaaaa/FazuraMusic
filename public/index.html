@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Streaming Music (Spotify)</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Music Streaming App</h1>
+        
+        <div id="login-section">
+            <p>Silakan masuk menggunakan akun Spotify Anda untuk memutar musik.</p>
+            <p><small>(Membutuhkan akun Spotify Premium untuk fitur pemutar di web)</small></p>
+            <a href="/login" class="btn">Login dengan Spotify</a>
+        </div>
+
+        <div id="app-section" style="display: none;">
+            <div class="profile-header">
+                <img id="profile-img" src="https://via.placeholder.com/50" alt="Profile Image" width="50" height="50" style="border-radius: 50%;">
+                <h2 id="display-name">User</h2>
+                <button id="logout-btn" class="btn btn-sm">Logout</button>
+            </div>
+            
+            <div class="main-content">
+                <div class="playlists-container">
+                    <h3>Playlist Kamu</h3>
+                    <ul id="playlists"></ul>
+                </div>
+                
+                <div class="player-container">
+                    <h3>Web Player SDK</h3>
+                    <p id="player-status">Menghubungkan ke pemutar...</p>
+                    <div id="now-playing">
+                        <img id="track-art" src="" alt="Album Art">
+                        <div>
+                            <h4 id="track-name">Memuat...</h4>
+                            <p id="artist-name">Memuat...</p>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <button id="prev-btn">⏮</button>
+                        <button id="toggle-play-btn">▶️</button>
+                        <button id="next-btn">⏭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script SDK Spotify -->
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px;
+    background: #181818;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+h1, h2, h3 { color: #1db954; }
+
+.btn {
+    display: inline-block;
+    background-color: #1db954;
+    color: #000;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
+
+.btn:hover { transform: scale(1.05); background-color: #1ed760; }
+.btn-sm { padding: 8px 16px; font-size: 0.9em; background-color: #333; color:#fff;}
+.btn-sm:hover { background-color: #444; }
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+.profile-header h2 { margin: 0; flex: 1; color: #fff;}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+}
+
+.playlists-container, .player-container {
+    flex: 1;
+    background: #282828;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+ul#playlists {
+    list-style: none;
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+ul#playlists li {
+    padding: 12px;
+    border-bottom: 1px solid #333;
+    cursor: pointer;
+    transition: 0.2s;
+}
+ul#playlists li:hover { background: #3e3e3e; border-radius: 6px;}
+
+#now-playing {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+    background: #121212;
+    padding: 10px;
+    border-radius: 8px;
+}
+#track-art { width: 70px; height: 70px; border-radius: 4px; display: none; }
+#track-name { margin: 0 0 5px 0; font-size:1.1em;}
+#artist-name { margin: 0; color: #b3b3b3; font-size:0.9em;}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+.controls button {
+    background: none;
+    border: none;
+    color: #b3b3b3;
+    font-size: 28px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.controls button:hover { color: #fff; transform: scale(1.1); }
+#toggle-play-btn { font-size: 40px; color: #fff; }

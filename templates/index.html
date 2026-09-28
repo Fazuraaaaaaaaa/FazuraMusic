@@ -1,0 +1,279 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify-like Player</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="dynamic-bg" class="dynamic-background"></div>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo" onclick="fetchCharts()">
+                <i class="fab fa-spotify"></i>
+                <span>MusicClone</span>
+            </div>
+            <ul class="nav-links">
+                <li class="active" onclick="fetchCharts()"><i class="fas fa-home"></i> Beranda</li>
+                <li onclick="focusSearch()"><i class="fas fa-search"></i> Cari</li>
+            </ul>
+            <hr class="divider">
+            <div class="library">
+                <div class="library-header" onclick="showLibraryView()" style="display: flex; justify-content: space-between; align-items: center; padding-right: 16px; cursor: pointer; color: var(--text-subdued); transition: color 0.2s;" onmouseover="this.style.color='var(--text-base)'" onmouseout="this.style.color='var(--text-subdued)'">
+                    <p style="margin:0; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;"><i class="fas fa-layer-group" style="margin-right:10px; font-size:1.1rem;"></i> Playlist Kamu</p>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-view">
+            <header class="top-bar">
+                <div class="nav-buttons">
+                    <button id="mobile-menu-btn" title="Menu" style="display: none; background: #000; color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; align-items: center; justify-content: center;"><i class="fas fa-bars"></i></button>
+                    <button id="btn-back" onclick="goBack()" disabled style="opacity: 0.5; cursor: not-allowed;" title="Kembali"><i class="fas fa-chevron-left"></i></button>
+                    <button id="btn-forward" onclick="goForward()" disabled style="opacity: 0.5; cursor: not-allowed;" title="Maju"><i class="fas fa-chevron-right"></i></button>
+                </div>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Apa yang ingin kamu dengarkan?">
+                </div>
+                
+            </header>
+
+            <div id="mobile-backdrop" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1999;"></div>
+
+            <div class="content-scroll" id="main-content-scroll">
+                
+                
+                <!-- Home View (YT Music Clone) -->
+                <div id="home-view" style="display: none; padding: 20px; padding-top: 10px;">
+                    <div id="home-loading" style="text-align:center; padding:50px; color:#b3b3b3;">
+                        <i class="fas fa-circle-notch fa-spin fa-3x"></i>
+                        <p style="margin-top:20px;">Memuat beranda...</p>
+                    </div>
+                    <div id="home-sections" style="display:none; flex-direction:column; gap:48px;">
+                        
+                        <!-- From the community -->
+                        <div class="home-section">
+                            <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                                <div style="display:flex; align-items:center; gap:16px;">
+                                    <div style="width:48px; height:48px; border-radius:50%; background:var(--bg-highlight); display:flex; align-items:center; justify-content:center;">
+                                        <i class="fas fa-users" style="font-size:1.5rem; color:var(--text-subdued);"></i>
+                                    </div>
+                                    <div>
+                                        <h4 style="margin:0; font-size:0.85rem; color:var(--text-subdued); text-transform:uppercase; letter-spacing:1px;">Start listening</h4>
+                                        <h2 style="margin:5px 0 0; font-size:2rem; font-weight:700;">From the community</h2>
+                                    </div>
+                                </div>
+                                <div class="section-nav" style="display:flex; gap:12px;">
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-community', -1)"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-community', 1)"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="horizontal-scroll" id="home-community"></div>
+                        </div>
+
+                        <!-- Covers and remixes -->
+                        <div class="home-section">
+                            <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                                <div>
+                                    <h2 style="margin:0; font-size:2rem; font-weight:700;">Covers and remixes</h2>
+                                </div>
+                                <div style="display:flex; gap:12px; align-items:center;">
+                                    <button class="play-all-btn" onclick="playAllSection('home-covers')">Play all</button>
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-covers', -1)"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-covers', 1)"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="list-grid" id="home-covers"></div>
+                        </div>
+
+                        <!-- Music videos for you -->
+                        <div class="home-section">
+                            <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                                <div>
+                                    <h2 style="margin:0; font-size:2rem; font-weight:700;">Music videos for you</h2>
+                                </div>
+                                <div style="display:flex; gap:12px; align-items:center;">
+                                    <button class="play-all-btn" onclick="playAllSection('home-videos')">Play all</button>
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-videos', -1)"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-videos', 1)"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="horizontal-scroll wide-cards-scroll" id="home-videos" style="gap:24px;"></div>
+                        </div>
+
+                        <!-- Trending songs for you -->
+                        <div class="home-section">
+                            <div class="section-header" style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px;">
+                                <div>
+                                    <h2 style="margin:0; font-size:2rem; font-weight:700;">Trending songs for you</h2>
+                                </div>
+                                <div style="display:flex; gap:12px; align-items:center;">
+                                    <button class="play-all-btn" onclick="playAllSection('home-trending')">Play all</button>
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-trending', -1)"><i class="fas fa-chevron-left"></i></button>
+                                    <button class="nav-btn" onclick="scrollHorizontal('home-trending', 1)"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <div class="list-grid" id="home-trending"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Library View -->
+                <div id="library-view" style="display: none; padding: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h1 style="font-size: 2.5rem; margin: 0;">Koleksi Kamu</h1>
+                        <button class="play-btn-large" onclick="createNewPlaylist()" style="padding: 10px 20px; font-size: 1rem;"><i class="fas fa-plus"></i> Buat Playlist</button>
+                    </div>
+                    <div class="grid-container" id="library-grid">
+                        <!-- Playlist cards go here -->
+                    </div>
+                    <hr class="divider" style="margin-top: 40px; margin-bottom: 20px;">
+                </div>
+                
+                <!-- Playlist View (Hidden By Default) -->
+                <div id="playlist-view" style="display: none;">
+                    <div class="hero-header">
+                        <img id="playlist-img" src="https://via.placeholder.com/230/282828/b3b3b3?text=Playlist" alt="Playlist">
+                        <div class="hero-details">
+                            <p>Playlist</p>
+                            <h1 id="playlist-title">Nama Playlist</h1>
+                            <p id="playlist-count" style="color:var(--text-subdued); font-size:0.9rem; margin-top:5px;"></p>
+                            <div style="margin-top:20px;">
+                                <button class="play-btn-large" id="playlist-play-btn"><i class="fas fa-play"></i> Putar</button>
+                                <button id="playlist-delete-btn" style="margin-left: 15px; color: #b3b3b3; font-size: 1.5rem; background: none; border: none; cursor: pointer;" title="Hapus Playlist"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="divider" style="margin-bottom: 20px;">
+                </div>
+
+                <!-- Artist View (Hidden By Default) -->
+                <div id="artist-view" style="display: none;">
+                    <div class="artist-header">
+                        <img id="artist-img" src="https://via.placeholder.com/200" alt="Artist">
+                        <div>
+                            <p>Artis Terverifikasi</p>
+                            <h1 id="artist-name-title">Nama Artis</h1>
+                            <button class="play-btn-large" onclick="playSong(0)"><i class="fas fa-play"></i></button>
+                        </div>
+                    </div>
+                    <h2>Lagu Populer</h2>
+                </div>
+
+                <!-- Featured Song / Hero (Hidden By Default) -->
+                <div id="hero-view" style="display: none;">
+                    <div class="hero-header">
+                        <img id="hero-img" src="https://via.placeholder.com/200" alt="Hero">
+                        <div class="hero-details">
+                            <p>Tampilan Spesial Lagu</p>
+                            <h1 id="hero-title">Judul Lagu Spesial</h1>
+                            <p id="hero-artist" style="color:var(--text-subdued); font-size:1.2rem; margin-top:5px; cursor:pointer; font-weight:bold;"></p>
+                            <div style="margin-top:20px;">
+                                <button class="play-btn-large" id="hero-play-btn"><i class="fas fa-play"></i> Putar Lagu</button>
+                            </div>
+                        </div>
+                    </div>
+                    <hr class="divider" style="margin-bottom: 20px;">
+                </div>
+
+                <h2 id="list-title">Tren Sekarang</h2>
+                <div id="loading" class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i> Memuat lagu...
+                </div>
+                <div class="grid-container" id="song-list">
+                    <!-- Cards go here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Player Bar -->
+    <footer class="player-bar">
+        <div class="now-playing">
+            <img id="track-art" src="" alt="" style="display: none;">
+            <div class="track-info">
+                <h4 id="track-name"></h4>
+                <p id="artist-name"></p>
+            </div>
+            <button class="like-btn" id="like-btn" style="display: none;" title="Simpan ke Lagu yang Disukai"><i class="far fa-heart"></i></button>
+            <button id="player-add-playlist-btn" class="player-add-btn" style="display: none;" title="Tambahkan ke Playlist"><i class="fas fa-plus"></i></button>
+        </div>
+
+        <div class="controls-container">
+            <div class="player-controls">
+                <button class="shuffle-btn"><i class="fas fa-random"></i></button>
+                <button id="prev-btn" title="Previous"><i class="fas fa-step-backward"></i></button>
+                <button id="play-pause-btn" class="play-btn"><i class="fas fa-play"></i></button>
+                <button id="next-btn" title="Next"><i class="fas fa-step-forward"></i></button>
+                <button class="repeat-btn"><i class="fas fa-redo"></i></button>
+            </div>
+            <div class="progress-bar-container">
+                <span id="current-time">0:00</span>
+                <input type="range" id="progress-bar" value="0" min="0" max="100" step="1" disabled>
+                <span id="total-time">0:00</span>
+            </div>
+        </div>
+
+        <div class="volume-container">
+            <button id="mute-btn" style="background: none; border: none; color: var(--text-subdued); font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-volume-up" id="mute-icon"></i></button>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='app.js') }}?v=3"></script>
+
+    <!-- Create Playlist Modal -->
+    <div id="create-playlist-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#282828; padding:24px; border-radius:8px; width:90%; max-width:320px; color:white; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+            <h3 style="margin-top:0; margin-bottom:15px; text-align:center; font-size:1.2rem;">Buat Playlist Baru</h3>
+            <input type="text" id="new-playlist-input" placeholder="Beri nama playlist kamu..." style="width:100%; box-sizing:border-box; padding:12px; border-radius:4px; border:1px solid #444; background:#3e3e3e; color:white; font-size:0.95rem; margin-bottom:20px; outline:none;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="document.getElementById('create-playlist-modal').style.display='none'" style="flex:1; padding:10px; border-radius:500px; border:none; background:#3e3e3e; color:#fff; font-weight:bold; cursor:pointer;">Batal</button>
+                <button onclick="confirmCreatePlaylist()" style="flex:1; padding:10px; border-radius:500px; border:none; background:var(--primary-color, #1db954); color:#000; font-weight:bold; cursor:pointer;">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Playlist Modal -->
+    <div id="playlist-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:#282828; padding:24px; border-radius:12px; width:90%; max-width:340px; color:white; box-shadow: 0 8px 24px rgba(0,0,0,0.5);">
+            <h3 style="margin-top:0; margin-bottom:14px; font-size:1.2rem; text-align:center;">Tambahkan ke Playlist</h3>
+            
+            <!-- Song preview info -->
+            <div id="modal-song-preview" style="display:flex; align-items:center; gap:12px; background:#1e1e1e; padding:10px; border-radius:8px; margin-bottom:16px;">
+                <img id="modal-song-thumb" src="" style="width:44px; height:44px; border-radius:4px; object-fit:cover;">
+                <div style="overflow:hidden; flex:1;">
+                    <div id="modal-song-title" style="font-size:0.9rem; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Judul Lagu</div>
+                    <div id="modal-song-artist" style="font-size:0.75rem; color:#b3b3b3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Artis</div>
+                </div>
+            </div>
+
+            <!-- List or Empty State -->
+            <div id="modal-playlist-container" style="max-height:220px; overflow-y:auto; margin-bottom:16px;">
+                <ul id="modal-playlist-list" style="list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:8px;">
+                    <!-- Playlists -->
+                </ul>
+                <div id="modal-playlist-empty" style="display:none; text-align:center; padding:15px 0; color:#a7a7a7; font-size:0.9rem;">
+                    Belum ada playlist. Yuk, buat playlist pertamamu!
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <button onclick="openCreatePlaylistFromModal()" style="width:100%; padding:10px; border-radius:500px; border:none; background:#1db954; color:#000; font-weight:bold; cursor:pointer; font-size:0.9rem; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="fas fa-plus"></i> Buat Playlist Baru
+                </button>
+                <button onclick="document.getElementById('playlist-modal').style.display='none'" style="width:100%; padding:10px; border-radius:500px; border:none; background:transparent; color:#fff; font-weight:bold; cursor:pointer; font-size:0.9rem;">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
