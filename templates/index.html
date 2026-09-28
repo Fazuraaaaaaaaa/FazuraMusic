@@ -8,7 +8,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+    <!-- YouTube Iframe API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <div id="dynamic-bg" class="dynamic-background"></div>
+    <!-- Hidden YouTube Player Container -->
+    <div id="yt-player-container" style="position: absolute; top: -9999px; left: -9999px; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none;">
+        <div id="yt-player"></div>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar -->
         <nav class="sidebar">

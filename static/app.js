@@ -11,7 +11,102 @@ function getHDThumbnail(url) {
     }
     return url;
 }
-let audioPlayer = new Audio();
+
+let ytPlayerReady = false;
+let ytPlayer = null;
+let ytProgressInterval = null;
+
+window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player('yt-player', {
+        height: '100',
+        width: '100',
+        videoId: '',
+        playerVars: {
+            'playsinline': 1,
+            'controls': 0,
+            'disablekb': 1,
+            'fs': 0,
+            'rel': 0,
+            'showinfo': 0,
+            'iv_load_policy': 3
+        },
+        events: {
+            'onReady': () => { ytPlayerReady = true; audioPlayer.volume = 1; },
+            'onStateChange': onPlayerStateChange,
+            'onError': (e) => { audioPlayer.dispatchEvent('error', e); }
+        }
+    });
+};
+
+function onPlayerStateChange(event) {
+    if (event.data == YT.PlayerState.PLAYING) {
+        audioPlayer.dispatchEvent('play');
+        if(ytProgressInterval) clearInterval(ytProgressInterval);
+        ytProgressInterval = setInterval(() => {
+            audioPlayer.dispatchEvent('timeupdate');
+            if (audioPlayer.currentTime >= audioPlayer.duration && audioPlayer.duration > 0) {
+                audioPlayer.dispatchEvent('ended');
+            }
+        }, 1000);
+    } else if (event.data == YT.PlayerState.PAUSED) {
+        audioPlayer.dispatchEvent('pause');
+    } else if (event.data == YT.PlayerState.ENDED) {
+        audioPlayer.dispatchEvent('ended');
+    }
+}
+
+class YTProxyAudio {
+    constructor() {
+        this.listeners = {};
+        this._src = '';
+        this._volume = 1.0;
+    }
+    addEventListener(event, callback) {
+        if (!this.listeners[event]) this.listeners[event] = [];
+        this.listeners[event].push(callback);
+    }
+    dispatchEvent(event, data) {
+        if (this.listeners[event]) this.listeners[event].forEach(cb => cb(data));
+    }
+    play() {
+        if (ytPlayerReady && ytPlayer && this._src) ytPlayer.playVideo();
+    }
+    pause() {
+        if (ytPlayerReady && ytPlayer) ytPlayer.pauseVideo();
+    }
+    get src() { return this._src; }
+    set src(val) {
+        this._src = val;
+        const videoId = new URLSearchParams(val.split('?')[1]).get('id');
+        if (ytPlayerReady && ytPlayer && videoId) {
+            ytPlayer.loadVideoById(videoId);
+        } else if (videoId) {
+            const checkReady = setInterval(() => {
+                if (ytPlayerReady && ytPlayer) {
+                    ytPlayer.loadVideoById(videoId);
+                    clearInterval(checkReady);
+                }
+            }, 100);
+        }
+    }
+    get volume() { return this._volume; }
+    set volume(val) {
+        this._volume = val;
+        if (ytPlayerReady && ytPlayer) ytPlayer.setVolume(val * 100);
+    }
+    get currentTime() {
+        return (ytPlayerReady && ytPlayer && ytPlayer.getCurrentTime) ? (ytPlayer.getCurrentTime() || 0) : 0;
+    }
+    set currentTime(val) {
+        if (ytPlayerReady && ytPlayer && ytPlayer.seekTo) ytPlayer.seekTo(val, true);
+    }
+    get duration() {
+        return (ytPlayerReady && ytPlayer && ytPlayer.getDuration) ? (ytPlayer.getDuration() || 0) : 0;
+    }
+}
+
+let audioPlayer = new YTProxyAudio();
+
 let currentPlaylist = [];
 let currentSongIndex = -1;
 let isPlaying = false;

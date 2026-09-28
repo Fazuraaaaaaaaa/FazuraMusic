@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "website-streaming-music",
   "builds": [
     {
       "src": "app.py",
