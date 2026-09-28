@@ -175,5 +175,8 @@ def stream_audio():
         print("Error stream url:", e)
         return "Gagal mendapatkan stream audio", 500
 
+import os
+
 if __name__ == '__main__':
-    app.run(debug=True, port=3000, threaded=True)
+    port = int(os.environ.get("PORT", 3000))
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
